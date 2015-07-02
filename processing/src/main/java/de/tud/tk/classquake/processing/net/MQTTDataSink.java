@@ -2,6 +2,7 @@ package de.tud.tk.classquake.processing.net;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -37,6 +38,8 @@ public class MQTTDataSink implements DataSink {
 		ByteBuffer.wrap(data).putDouble(value);
 		MqttMessage msg = new MqttMessage(data);
 		try {
+			if(log.isDebugEnabled())
+				log.debug("Sending "+value+" to "+topic+" as "+Arrays.toString(data));
 			client.publish(topic, msg);
 		} catch (MqttException e) {
 			throw new IOException("Error sending " + String.valueOf(value)

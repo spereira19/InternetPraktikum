@@ -28,6 +28,7 @@ public class Main {
 				intopic);
 				DataSink sink = new MQTTDataSink(broker, "processing-writer",
 						outtopic)) {
+
 			src.addDataSourceListener(new DataSourceListener() {
 				@Override
 				public void onNewTimeSeries(TimeSeries ts) {

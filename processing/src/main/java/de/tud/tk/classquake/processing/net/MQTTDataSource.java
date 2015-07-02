@@ -1,6 +1,7 @@
 package de.tud.tk.classquake.processing.net;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -38,6 +39,8 @@ public class MQTTDataSource extends AbstractDataSource {
 				public void messageArrived(String topic, MqttMessage msg)
 						throws Exception {
 					byte[] data = msg.getPayload();
+					if(log.isDebugEnabled())
+						log.debug("receved msg on "+topic+": "+Arrays.toString(data));
 					fireNewTimeseriesEvent(ListTimeSeries.fromBytes(data));
 				}
 
