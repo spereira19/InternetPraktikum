@@ -1,8 +1,8 @@
 package de.tud.tk.classquake.processing;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-
-import javax.swing.JFrame;
+import java.io.InputStreamReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +19,15 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 		log.info("Processing started");
-		String broker = "tcp://iot.eclipse.org:1883";
+		// String broker = "tcp://iot.eclipse.org:1883";
+		String broker = "tcp://130.83.160.103:1883";
+		String intopic = "MQTT Test from Source code";
+		String outtopic = "de.tud.tk.classquake.processed";
 
 		try (DataSource src = new MQTTDataSource(broker, "processing-reader",
-				"in-topic");
+				intopic);
 				DataSink sink = new MQTTDataSink(broker, "processing-writer",
-						"out-topic")) {
+						outtopic)) {
 			src.addDataSourceListener(new DataSourceListener() {
 				@Override
 				public void onNewTimeSeries(TimeSeries ts) {
@@ -35,10 +38,13 @@ public class Main {
 					}
 				}
 			});
-			
-			// FIXME this is not feasible
-			new JFrame().setVisible(true);
-			
+
+			String input;
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					System.in));
+			do {
+				input = in.readLine().toLowerCase().trim();
+			} while (input != "exit");
 		} catch (IOException e) {
 			log.error("connection faild", e);
 		}
