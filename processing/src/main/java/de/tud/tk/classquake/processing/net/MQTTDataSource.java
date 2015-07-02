@@ -28,8 +28,8 @@ public class MQTTDataSource extends AbstractDataSource {
 
 			MqttConnectOptions conOptions = new MqttConnectOptions();
 			conOptions.setCleanSession(true);
-			
-			log.info("Connecting to broker: " + broker);
+
+			log.info("Connecting to broker: " + broker + " as " + clientId);
 			client.connect(conOptions);
 			log.info("connected");
 
@@ -39,8 +39,9 @@ public class MQTTDataSource extends AbstractDataSource {
 				public void messageArrived(String topic, MqttMessage msg)
 						throws Exception {
 					byte[] data = msg.getPayload();
-					if(log.isDebugEnabled())
-						log.debug("receved msg on "+topic+": "+Arrays.toString(data));
+					if (log.isDebugEnabled())
+						log.debug("receved msg on " + topic + ": "
+								+ Arrays.toString(data));
 					fireNewTimeseriesEvent(ListTimeSeries.fromBytes(data));
 				}
 

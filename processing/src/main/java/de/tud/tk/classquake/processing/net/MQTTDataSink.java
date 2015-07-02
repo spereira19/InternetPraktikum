@@ -26,7 +26,10 @@ public class MQTTDataSink implements DataSink {
 			client = new MqttClient(broker, clientId, persistence);
 			MqttConnectOptions conOptions = new MqttConnectOptions();
 			conOptions.setCleanSession(true);
+			log.info("connecting to broker: " + broker + " as " + clientId);
 			client.connect(conOptions);
+			log.info("connected");
+
 		} catch (MqttException e) {
 			throw new IOException("Error while init", e);
 		}
@@ -38,8 +41,9 @@ public class MQTTDataSink implements DataSink {
 		ByteBuffer.wrap(data).putDouble(value);
 		MqttMessage msg = new MqttMessage(data);
 		try {
-			if(log.isDebugEnabled())
-				log.debug("Sending "+value+" to "+topic+" as "+Arrays.toString(data));
+			if (log.isDebugEnabled())
+				log.debug("Sending " + value + " to " + topic + " as "
+						+ Arrays.toString(data));
 			client.publish(topic, msg);
 		} catch (MqttException e) {
 			throw new IOException("Error sending " + String.valueOf(value)
