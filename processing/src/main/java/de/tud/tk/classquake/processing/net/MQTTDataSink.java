@@ -47,7 +47,7 @@ public class MQTTDataSink implements DataSink {
 	@Override
 	public void close() throws IOException {
 		try {
-			client.close();
+			client.disconnect();
 		} catch (MqttException e) {
 			throw new IOException(e);
 		}
