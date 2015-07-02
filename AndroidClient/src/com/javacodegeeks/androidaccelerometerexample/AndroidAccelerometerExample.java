@@ -1,5 +1,17 @@
 package com.javacodegeeks.androidaccelerometerexample;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
+
+
+
+
+
+
+import com.androidclient.pojo.AccelerometerData;
+import com.androidclient.util.MqttConnection;
+
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -7,6 +19,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,8 +33,10 @@ public class AndroidAccelerometerExample extends Activity implements SensorEvent
 	private float lastX, lastY, lastZ;
 	private static String logtag = "TwoButtonApp";//for use as the tag when logging 
 	private SensorManager sensorManager;
+	private ArrayList<AccelerometerData> gObjArraylistOfSensorData;
 	private Sensor accelerometer;
-
+	private TelephonyManager gObjTelephonyManager;
+	private String gStrDeviceId;
 	private float deltaXMax = 0;
 	private float deltaYMax = 0;
 	private float deltaZMax = 0;
@@ -41,7 +57,8 @@ public class AndroidAccelerometerExample extends Activity implements SensorEvent
 		setContentView(R.layout.activity_main);
 		initializeViews();
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
+		gObjTelephonyManager = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+		gStrDeviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 		
 		if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
  			// success! we have an accelerometer
@@ -57,9 +74,8 @@ public class AndroidAccelerometerExample extends Activity implements SensorEvent
 	        public void onClick(View v) {
 	         Log.d(logtag,"onClick() called - start button"); 
 	        // Toast.makeText(AndroidAccelerometerExample.this, sensorManager.toString() , Toast.LENGTH_LONG).show();
+	         gObjArraylistOfSensorData = new ArrayList();
 	         sensorManager.registerListener(AndroidAccelerometerExample.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-	 		//initialize vibration
-	 		
 	         Log.d(logtag,"onClick() ended - start button");
 	        } 
 	    };
@@ -69,6 +85,12 @@ public class AndroidAccelerometerExample extends Activity implements SensorEvent
 	        public void onClick(View v) {
 	         Log.d(logtag,"onClick() called - stop button"); 
 	         Toast.makeText(AndroidAccelerometerExample.this, "The Stop button was clicked.", Toast.LENGTH_LONG).show();
+	         try {
+				MqttConnection.createConnection(gObjTelephonyManager,gObjArraylistOfSensorData,gStrDeviceId);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	         sensorManager.unregisterListener(AndroidAccelerometerExample.this);
 	         Log.d(logtag,"onClick() ended - stop button");
 	        } 
@@ -139,6 +161,11 @@ public class AndroidAccelerometerExample extends Activity implements SensorEvent
 		lastX = event.values[0];
 		lastY = event.values[1];
 		lastZ = event.values[2];
+		
+		long timestamp = System.currentTimeMillis();
+		AccelerometerData data = new AccelerometerData(timestamp, lastX, lastY, lastZ);
+        gObjArraylistOfSensorData.add(data);
+		
 
 	//	vibrate();
 
